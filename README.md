@@ -55,8 +55,28 @@ The server runs by default on:
 ```
 http://localhost:3000
 ```
+## Example Request
 
-## API Endpoints
+The API supports case-insensitive search using the `search` query parameter.
+
+```bash
+curl -i "http://localhost:3000/tasks?search=JAVASCRIPT"
+```
+
+Output:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+[
+  {
+    "id": 1,
+    "title": "Study JavaScript",
+    "done": false
+  }
+]
+```
 
 ## API Endpoints
 
