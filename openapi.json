@@ -2,7 +2,7 @@
   "openapi": "3.0.4",
   "info": {
     "title": "Task API",
-    "description": "Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.",
+    "description": "A simple REST API for a To-Do List with full CRUD functionality.",
     "version": "1.0"
   },
   "servers": [
