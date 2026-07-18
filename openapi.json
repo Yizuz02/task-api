@@ -1,0 +1,340 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "Task API",
+    "description": "Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Internal staging server for testing"
+    }
+  ],
+  "paths": {
+    "/tasks": {
+        "get": {
+            "summary": "Returns a list of tasks.",
+            "description": "Returns all tasks stored in memory.",
+            "responses": {
+            "200": {
+                "description": "A JSON array of tasks",
+                "content": {
+                "application/json": {
+                    "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                        "id": {
+                            "type": "integer"
+                        },
+                        "title": {
+                            "type": "string"
+                        },
+                        "done": {
+                            "type": "boolean"
+                        }
+                        }
+                    }
+                    },
+                    "example": [
+                    {
+                        "id": 1,
+                        "title": "Study JavaScript",
+                        "done": false
+                    },
+                    {
+                        "id": 2,
+                        "title": "Develop To-Do list API for Internship",
+                        "done": false
+                    },
+                    {
+                        "id": 3,
+                        "title": "Buy groceries",
+                        "done": true
+                    }
+                    ]
+                }
+                }
+            }
+            }
+        },
+        "post": {
+            "summary": "Add a new task.",
+            "description": "Creates a new task in memory.",
+            "requestBody": {
+                "description": "Task to create.",
+                "required": true,
+                "content": {
+                "application/json": {
+                    "schema": {
+                    "type": "object",
+                    "required": ["title"],
+                    "properties": {
+                        "title": {
+                        "type": "string"
+                        }
+                    }
+                    },
+                    "example": {
+                    "title": "Buy milk"
+                    }
+                }
+                }
+            },
+            "responses": {
+                "201": {
+                "description": "The created task.",
+                "content": {
+                    "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                        "id": {
+                            "type": "integer"
+                        },
+                        "title": {
+                            "type": "string"
+                        },
+                        "done": {
+                            "type": "boolean"
+                        }
+                        }
+                    },
+                    "example": {
+                        "id": 4,
+                        "title": "Buy milk",
+                        "done": false
+                    }
+                    }
+                }
+                },
+                "400": {
+                "description": "Invalid request.",
+                "content": {
+                    "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                        "error": {
+                            "type": "string"
+                        }
+                        }
+                    },
+                    "example": {
+                        "error": "Title is required"
+                    }
+                    }
+                }
+                }
+            }
+        }
+    },
+    "/tasks/{id}": {
+        "get": {
+            "summary": "Gets a task by id.",
+            "description": "Returns the task with the specified id stored in memory.",
+            "parameters": [
+            {
+                "name": "id",
+                "in": "path",
+                "description": "Task ID.",
+                "required": true,
+                "schema": {
+                "type": "integer"
+                }
+            }
+            ],
+            "responses": {
+            "200": {
+                "description": "The requested task.",
+                "content": {
+                "application/json": {
+                    "schema": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                        "type": "integer"
+                        },
+                        "title": {
+                        "type": "string"
+                        },
+                        "done": {
+                        "type": "boolean"
+                        }
+                    }
+                    },
+                    "example": {
+                    "id": 1,
+                    "title": "Study JavaScript",
+                    "done": false
+                    }
+                }
+                }
+            },
+            "404": {
+                "description": "Task not found.",
+                "content": {
+                "application/json": {
+                    "schema": {
+                    "type": "object",
+                    "properties": {
+                        "error": {
+                        "type": "string"
+                        }
+                    }
+                    },
+                    "example": {
+                    "error": "Task 99 not found"
+                    }
+                }
+                }
+            }
+            }
+        },
+
+        "put": {
+            "summary": "Updates a task.",
+            "description": "Updates the title and/or done status of an existing task stored in memory.",
+            "parameters": [
+            {
+                "name": "id",
+                "in": "path",
+                "description": "Task ID.",
+                "required": true,
+                "schema": {
+                "type": "integer"
+                }
+            }
+            ],
+            "requestBody": {
+            "description": "Fields to update.",
+            "required": true,
+            "content": {
+                "application/json": {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "done": {
+                        "type": "boolean"
+                    }
+                    }
+                },
+                "example": {
+                    "title": "Learn Express",
+                    "done": true
+                }
+                }
+            }
+            },
+            "responses": {
+            "200": {
+                "description": "The updated task.",
+                "content": {
+                "application/json": {
+                    "schema": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                        "type": "integer"
+                        },
+                        "title": {
+                        "type": "string"
+                        },
+                        "done": {
+                        "type": "boolean"
+                        }
+                    }
+                    },
+                    "example": {
+                    "id": 1,
+                    "title": "Learn Express",
+                    "done": true
+                    }
+                }
+                }
+            },
+            "400": {
+                "description": "Invalid request body.",
+                "content": {
+                "application/json": {
+                    "schema": {
+                    "type": "object",
+                    "properties": {
+                        "error": {
+                        "type": "string"
+                        }
+                    }
+                    },
+                    "example": {
+                    "error": "Invalid title"
+                    }
+                }
+                }
+            },
+            "404": {
+                "description": "Task not found.",
+                "content": {
+                "application/json": {
+                    "schema": {
+                    "type": "object",
+                    "properties": {
+                        "error": {
+                        "type": "string"
+                        }
+                    }
+                    },
+                    "example": {
+                    "error": "Task 99 not found"
+                    }
+                }
+                }
+            }
+            }
+        },
+
+        "delete": {
+            "summary": "Deletes a task.",
+            "description": "Removes the task with the specified id from memory.",
+            "parameters": [
+            {
+                "name": "id",
+                "in": "path",
+                "description": "Task ID.",
+                "required": true,
+                "schema": {
+                "type": "integer"
+                }
+            }
+            ],
+            "responses": {
+            "204": {
+                "description": "Task deleted successfully."
+            },
+            "404": {
+                "description": "Task not found.",
+                "content": {
+                "application/json": {
+                    "schema": {
+                    "type": "object",
+                    "properties": {
+                        "error": {
+                        "type": "string"
+                        }
+                    }
+                    },
+                    "example": {
+                    "error": "Task 99 not found"
+                    }
+                }
+                }
+            }
+            }
+        }
+    }
+  }
+}
