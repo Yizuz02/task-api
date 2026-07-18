@@ -1,0 +1,14 @@
+{
+  "name": "todo-api-ai-version",
+  "version": "1.0.0",
+  "description": "In-memory To-do list API with Swagger docs",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
