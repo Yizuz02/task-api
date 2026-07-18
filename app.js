@@ -8,11 +8,18 @@ const swaggerDocument = require('./openapi.json');
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(express.json());
 
-const tasks = [
+const originalTasks = [
   {id: 1, title: "Study JavaScript", done: false},
   {id: 2, title: "Develop To-Do list API for Intership", done: false},
   {id: 3, title: "Buy groceries", done: true}
 ]
+
+var tasks = originalTasks.map(task => ({
+    id: task.id,
+    title: task.title,
+    done: task.done
+  }));
+
 
 app.get('/', (req, res) => {
   res.send({
@@ -28,8 +35,34 @@ app.get('/health', (req, res) => {
     });
 });
 
-app.get('/tasks', (req, res) => {
+app.get('/stats', (req, res) => {
+  const total = tasks.length;
+  const done = tasks.filter(task => task.done === true); 
+  const doneTotal = done.length;
+  const open = total - doneTotal;
+  res.send({ "total": total, "done": doneTotal, "open": open });
+});
+
+app.post('/reset', (req, res) => {
+  tasks = originalTasks.map(task => ({
+    id: task.id,
+    title: task.title,
+    done: task.done
+  }));
   res.send(tasks);
+});
+
+app.get('/tasks', (req, res) => {
+  const query = req.query
+
+  let filteredTasks = tasks
+  if (query.search){
+    filteredTasks = filteredTasks.filter(task => task.title.toLowerCase().includes(query.search.toLowerCase())); 
+  }
+  if (query.done){
+    filteredTasks = filteredTasks.filter(task => task.done === (query.done.toLowerCase() === "true")); 
+  }
+  res.send(filteredTasks);
 });
 
 app.get('/tasks/:id', (req, res) => {

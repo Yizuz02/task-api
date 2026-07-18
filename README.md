@@ -58,13 +58,17 @@ http://localhost:3000
 
 ## API Endpoints
 
+## API Endpoints
+
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/tasks` | Get all tasks |
-| GET | `/tasks/{id}` | Get a task by its ID |
-| POST | `/tasks` | Create a new task |
-| PUT | `/tasks/{id}` | Update a task |
-| DELETE | `/tasks/{id}` | Delete a task |
+| GET | `/tasks` | Get all tasks. Supports filtering by `done` and searching by title using query parameters. |
+| GET | `/tasks/{id}` | Get a specific task by ID. |
+| POST | `/tasks` | Create a new task. |
+| PUT | `/tasks/{id}` | Update an existing task title and/or completion status. |
+| DELETE | `/tasks/{id}` | Delete a task by ID. |
+| GET | `/stats` | Get calculated statistics about tasks. |
+| POST | `/reset` | Restore the task list to the initial example data. |
 
 ## Swagger Documentation
 
@@ -83,3 +87,11 @@ Swagger UI displays all available endpoints, request parameters, request bodies,
 ## Internship
 
 This project was developed as part of the **FlyRank AI Internship**.
+
+## Extras
+
+### Data Persistence
+
+This API stores all tasks in memory (RAM). Because of that, every time the server is restarted, all created, updated, or deleted tasks are lost and the application returns to the initial three example tasks.
+
+To keep data between server restarts, a persistent storage solution such as a database would be required.

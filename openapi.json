@@ -14,8 +14,29 @@
   "paths": {
     "/tasks": {
         "get": {
-            "summary": "Returns a list of tasks.",
-            "description": "Returns all tasks stored in memory.",
+            "description": "Returns all tasks stored in memory. Supports filtering by completion status and searching tasks by title.",
+            "parameters": [
+                {
+                "name": "done",
+                "in": "query",
+                "description": "Filter tasks by completion status.",
+                "required": false,
+                "schema": {
+                    "type": "boolean",
+                    "example": true
+                }
+                },
+                {
+                "name": "search",
+                "in": "query",
+                "description": "Search tasks by title.",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "example": "milk"
+                }
+                }
+            ],
             "responses": {
             "200": {
                 "description": "A JSON array of tasks",
@@ -329,6 +350,92 @@
                     },
                     "example": {
                     "error": "Task 99 not found"
+                    }
+                }
+                }
+            }
+            }
+        }
+    },
+        "/reset": {
+        "post": {
+            "summary": "Reset tasks.",
+            "description": "Restores the task list to the initial example tasks.",
+            "responses": {
+            "200": {
+                "description": "Tasks successfully restored.",
+                "content": {
+                "application/json": {
+                    "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                        "id": {
+                            "type": "integer"
+                        },
+                        "title": {
+                            "type": "string"
+                        },
+                        "done": {
+                            "type": "boolean"
+                        }
+                        }
+                    }
+                    },
+                    "example": [
+                    {
+                        "id": 1,
+                        "title": "Study JavaScript",
+                        "done": false
+                    },
+                    {
+                        "id": 2,
+                        "title": "Develop To-Do list API for Internship",
+                        "done": false
+                    },
+                    {
+                        "id": 3,
+                        "title": "Buy groceries",
+                        "done": true
+                    }
+                    ]
+                }
+                }
+            }
+            }
+        }
+        },
+    "/stats": {
+        "get": {
+            "summary": "Gets task statistics.",
+            "description": "Returns calculated statistics about the current tasks stored in memory.",
+            "responses": {
+            "200": {
+                "description": "Task statistics.",
+                "content": {
+                "application/json": {
+                    "schema": {
+                    "type": "object",
+                    "properties": {
+                        "total": {
+                        "type": "integer",
+                        "description": "Total number of tasks."
+                        },
+                        "done": {
+                        "type": "integer",
+                        "description": "Number of completed tasks."
+                        },
+                        "open": {
+                        "type": "integer",
+                        "description": "Number of incomplete tasks."
+                        }
+                    }
+                    },
+                    "example": {
+                    "total": 7,
+                    "done": 3,
+                    "open": 4
                     }
                 }
                 }
