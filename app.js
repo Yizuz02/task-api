@@ -90,19 +90,22 @@ app.post('/reset', (req, res) => {
 app.get('/tasks', (req, res) => {
   const query = req.query
 
-  let filteredTasks = tasks
+  let queryTasks = 'SELECT * FROM tasks WHERE 1=1'
+  const params = {};
   if (query.search){
-    filteredTasks = filteredTasks.filter(task => task.title.toLowerCase().includes(query.search.toLowerCase())); 
+    queryTasks += ' AND lower(title) LIKE lower(@title)';
+    params.title = `%${query.search}%`;
   }
   if (query.done){
-    filteredTasks = filteredTasks.filter(task => task.done === (query.done.toLowerCase() === "true")); 
+    queryTasks += ' AND done = @done';
+    params.done = query.done === 'true' ? 1 : 0;
   }
-  res.send(filteredTasks);
+  res.send(db.prepare(queryTasks).all(params));
 });
 
 app.get('/tasks/:id', (req, res) => {
   const { id } = req.params;
-  const foundTask = tasks.find(task => task.id === Number(id))
+  const foundTask = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id)
   if (foundTask){
     res.send(foundTask);
   } else {
