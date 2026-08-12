@@ -205,3 +205,10 @@ The AI made reasonable decisions for all of these details.
 ### Rematch
 
 I did not generate a second version of the prompt because the first generated solution worked correctly and met the requested functionality.
+
+
+## SQL
+
+### SQL Query Result
+
+I ran DELETE FROM tasks WHERE done = 1; directly in SQLite to remove all completed tasks. The query executed successfully without errors and deleted 1 row from the tasks table.
