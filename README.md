@@ -164,6 +164,10 @@ This project was developed as part of the **FlyRank AI Internship**.
 
 ## Extras
 
+### Schema Changes & Timestamps
+
+Adding created_at and updated_at columns required dropping the existing tasks.db table so SQLite could recreate the schema with the new columns. Updating the table structure manually felt slightly brittle and disruptive to existing data, which highlighted why dedicated database migration tools are essential for handling schema changes cleanly in production.
+
 ## AI vs Me (Old)
 
 ### Prompt
