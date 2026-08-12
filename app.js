@@ -1,15 +1,15 @@
-const Database = require('better-sqlite3');
+const Database = require("better-sqlite3");
 
-const db = new Database('tasks.db');
+const db = new Database("tasks.db");
 
-const express = require('express');
+const express = require("express");
 const app = express();
 
 const port = 3000;
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./openapi.json');
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./openapi.json");
 
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(express.json());
 
 db.exec(`
@@ -29,7 +29,7 @@ const insertManyTask = db.transaction((tasks) => {
   for (const task of tasks) insertTask.run(task);
 });
 
-const numRows = db.prepare('SELECT COUNT(*) as count FROM tasks;').get().count;
+const numRows = db.prepare("SELECT COUNT(*) as count FROM tasks;").get().count;
 
 
 
@@ -56,7 +56,7 @@ var tasks = originalTasks.map(task => ({
   }));
 
 
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   res.send({
     "name": "Task API",
     "version": "1.0",
@@ -64,13 +64,13 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/health', (req, res) => {
+app.get("/health", (req, res) => {
   res.send({
      "status": "ok" 
     });
 });
 
-app.get('/stats', (req, res) => {
+app.get("/stats", (req, res) => {
   const total = tasks.length;
   const done = tasks.filter(task => task.done === true); 
   const doneTotal = done.length;
@@ -78,7 +78,7 @@ app.get('/stats', (req, res) => {
   res.send({ "total": total, "done": doneTotal, "open": open });
 });
 
-app.post('/reset', (req, res) => {
+app.post("/reset", (req, res) => {
   tasks = originalTasks.map(task => ({
     id: task.id,
     title: task.title,
@@ -87,25 +87,25 @@ app.post('/reset', (req, res) => {
   res.send(tasks);
 });
 
-app.get('/tasks', (req, res) => {
+app.get("/tasks", (req, res) => {
   const query = req.query
 
-  let queryTasks = 'SELECT * FROM tasks WHERE 1=1'
+  let queryTasks = "SELECT * FROM tasks WHERE 1=1"
   const params = {};
   if (query.search){
-    queryTasks += ' AND lower(title) LIKE lower(@title)';
+    queryTasks += " AND lower(title) LIKE lower(@title)";
     params.title = `%${query.search}%`;
   }
   if (query.done){
-    queryTasks += ' AND done = @done';
-    params.done = query.done === 'true' ? 1 : 0;
+    queryTasks += " AND done = @done";
+    params.done = query.done === "true" ? 1 : 0;
   }
   res.send(db.prepare(queryTasks).all(params));
 });
 
-app.get('/tasks/:id', (req, res) => {
+app.get("/tasks/:id", (req, res) => {
   const { id } = req.params;
-  const foundTask = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id)
+  const foundTask = db.prepare("SELECT * FROM tasks WHERE id = ?").get(id)
   if (foundTask){
     res.send(foundTask);
   } else {
@@ -113,7 +113,7 @@ app.get('/tasks/:id', (req, res) => {
   }
 });
 
-app.post('/tasks', (req, res) => {
+app.post("/tasks", (req, res) => {
   const task = req.body;
 
   if (!task.title){
@@ -129,44 +129,66 @@ app.post('/tasks', (req, res) => {
   res.status(201).send(newTask);
 });
 
-app.put('/tasks/:id', (req, res) => {
-  const { id } = req.params;
-  const foundTaskIndex = tasks.findIndex(task => task.id === Number(id))
-
-  if (foundTaskIndex === -1){
-    return res.status(404).send({ "error": `Task ${id} not found` });
-  }
-
+app.put("/tasks/:id", (req, res) => {
   const body = req.body;
 
   if (!("title" in body) && !("done" in body)){
     return res.status(400).send({ "error": "Title or done status is required" });
   }
+  
+  const { id } = req.params;
+
+  let updateQuery = "UPDATE tasks";
+  let params = {}
+
+  params.id = id
 
   if ("title" in body){
     if (typeof body.title !== "string" || body.title.trim() === ""){
       return res.status(400).send({ "error": "Invalid title" });
     }
-    tasks[foundTaskIndex].title = body.title
+    updateQuery += " SET title = @title";
+    params.title = body.title;
+
+    if ("done" in body){
+      updateQuery += ",";
+    }
   }
+
 
   if ("done" in body){
     if (typeof body.done !== "boolean"){
       return res.status(400).send({ "error": "Invalid done status" });
     }
-    tasks[foundTaskIndex].done = body.done
+    updateQuery += " SET done = @done";
+    params.done = body.done === "true" ? 1 : 0;
   }
-  
-  res.send(tasks[foundTaskIndex]);
-});
 
-app.delete('/tasks/:id', (req, res) => {
-  const { id } = req.params;
-  const foundTaskIndex = tasks.findIndex(task => task.id === Number(id));
-  if (foundTaskIndex === -1){
+  updateQuery += " WHERE id = @id"
+
+  const updateTask = db.prepare(updateQuery);
+
+  const result = updateTask.run(params);
+
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+
+  if (!task){
     return res.status(404).send({ "error": `Task ${id} not found` });
   }
-  tasks.splice(foundTaskIndex, 1)
+  
+  res.send(task);
+});
+
+app.delete("/tasks/:id", (req, res) => {
+  const { id } = req.params;
+  const deleteTask = db.prepare("DELETE FROM tasks WHERE id = @id");
+
+  const result = deleteTask.run({id: id});
+
+  if (result.changes === 0){
+    return res.status(404).send({ "error": `Task ${id} not found` });
+  }
+  
   res.status(204).send();
 });
 
