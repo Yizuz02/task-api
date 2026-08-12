@@ -1,31 +1,44 @@
+Here is the fully updated **`README.md`** incorporating all the required database documentation, setup details, and updated architecture context.
+
+---
+
 # Task API
 
-A simple REST API for a To-Do List with full CRUD functionality.
+A simple REST API for a To-Do List with full CRUD functionality and persistent SQLite storage.
 
-The project is built with **JavaScript** and **Express.js** and includes **Swagger UI** for interactive API documentation.
+The project is built with **JavaScript** and **Express.js**, uses **better-sqlite3** for database management, and includes **Swagger UI** for interactive API documentation.
 
-## Features
+## Why SQLite?
 
-- Full CRUD operations for tasks
-- RESTful API
-- Input validation
-- OpenAPI 3.0 documentation
-- Swagger UI interface
+In this updated version, storage was migrated from in-memory (RAM) to a **SQLite** database. SQLite was chosen because:
+
+* **Single File:** The entire database resides in a single, local file (`tasks.db`).
+
+
+* **Zero Setup:** Requires no external database server installation or configuration.
+
+
+* **Data Persistence:** Data survives server restarts and crashes, providing reliable persistence.
+
+
 
 ## Tech Stack
 
-- JavaScript
-- Node.js
-- Express.js
-- Swagger UI Express
-- OpenAPI 3.0
+* JavaScript
+* Node.js
+* Express.js
+* SQLite (`better-sqlite3`)
+* Swagger UI Express
+* OpenAPI 3.0
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (recommended version 18 or newer)
-- npm
+* Node.js (recommended version 18 or newer)
+
+
+* npm
 
 ### Installation
 
@@ -34,33 +47,56 @@ Clone the repository:
 ```bash
 git clone https://github.com/Yizuz02/task-api
 cd task-api
+
 ```
 
 Install the dependencies:
 
 ```bash
 npm install
+
 ```
 
 ### Run the server
 
-Start the server with:
+Start the project with a single command:
 
 ```bash
 node app.js
+
 ```
+
+> **Database Setup & Automatic Initialization:**
+> The database file `tasks.db` lives in the project root directory. It is ignored by Git (`.gitignore`) so that every clone starts fresh.
+> 
+> 
+> When you run `node app.js`, the application automatically:
+> 1. Creates `tasks.db` if it does not exist.
+> 
+> 
+> 2. Creates the `tasks` table with columns `id`, `title`, and `done`.
+> 
+> 
+> 3. Seeds the three default example tasks if the database is empty.
+> 
+> 
+> 
+> 
 
 The server runs by default on:
 
 ```
 http://localhost:3000
+
 ```
+
 ## Example Request
 
-The API supports case-insensitive search using the `search` query parameter.
+The API supports case-insensitive search using the `search` query parameter evaluated via SQL.
 
 ```bash
 curl -i "http://localhost:3000/tasks?search=JAVASCRIPT"
+
 ```
 
 Output:
@@ -73,22 +109,44 @@ Content-Type: application/json; charset=utf-8
   {
     "id": 1,
     "title": "Study JavaScript",
-    "done": false
+    "done": 0
   }
 ]
+
 ```
 
 ## API Endpoints
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/tasks` | Get all tasks. Supports filtering by `done` and searching by title using query parameters. |
+| --- | --- | --- |
+| GET | `/tasks` | Get all tasks. Supports filtering by `done` status and searching by `title` using query parameters. |
 | GET | `/tasks/{id}` | Get a specific task by ID. |
 | POST | `/tasks` | Create a new task. |
-| PUT | `/tasks/{id}` | Update an existing task title and/or completion status. |
+| PUT | `/tasks/{id}` | Update an existing task's title and/or completion status. |
 | DELETE | `/tasks/{id}` | Delete a task by ID. |
 | GET | `/stats` | Get calculated statistics about tasks. |
 | POST | `/reset` | Restore the task list to the initial example data. |
+
+
+## Database Direct Inspection
+
+The database structure and contents can be directly viewed and edited using **DB Browser for SQLite**.
+
+**DB Browser Preview**
+
+![Local Screenshot](dbbrowser.png)
+
+
+### Executed SQL Query Example
+
+The following query was run directly on the database to delete all completed tasks:
+
+```sql
+DELETE FROM tasks WHERE done = 1;
+
+```
+
+**Result:** The query executed successfully without errors and removed 1 completed task from the `tasks` table, which was immediately reflected across API requests.
 
 ## Swagger Documentation
 
@@ -110,13 +168,7 @@ This project was developed as part of the **FlyRank AI Internship**.
 
 ## Extras
 
-### Data Persistence
-
-This API stores all tasks in memory (RAM). Because of that, every time the server is restarted, all created, updated, or deleted tasks are lost and the application returns to the initial three example tasks.
-
-To keep data between server restarts, a persistent storage solution such as a database would be required.
-
-## AI vs Me
+## AI vs Me (Old)
 
 ### Prompt
 
@@ -206,9 +258,3 @@ The AI made reasonable decisions for all of these details.
 
 I did not generate a second version of the prompt because the first generated solution worked correctly and met the requested functionality.
 
-
-## SQL
-
-### SQL Query Result
-
-I ran DELETE FROM tasks WHERE done = 1; directly in SQLite to remove all completed tasks. The query executed successfully without errors and deleted 1 row from the tasks table.
