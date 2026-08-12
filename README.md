@@ -1,7 +1,3 @@
-Here is the fully updated **`README.md`** incorporating all the required database documentation, setup details, and updated architecture context.
-
----
-
 # Task API
 
 A simple REST API for a To-Do List with full CRUD functionality and persistent SQLite storage.
