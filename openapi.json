@@ -357,55 +357,6 @@
             }
         }
     },
-        "/reset": {
-        "post": {
-            "summary": "Reset tasks.",
-            "description": "Restores the task list to the initial example tasks.",
-            "responses": {
-            "200": {
-                "description": "Tasks successfully restored.",
-                "content": {
-                "application/json": {
-                    "schema": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                        "id": {
-                            "type": "integer"
-                        },
-                        "title": {
-                            "type": "string"
-                        },
-                        "done": {
-                            "type": "boolean"
-                        }
-                        }
-                    }
-                    },
-                    "example": [
-                    {
-                        "id": 1,
-                        "title": "Study JavaScript",
-                        "done": false
-                    },
-                    {
-                        "id": 2,
-                        "title": "Develop To-Do list API for Internship",
-                        "done": false
-                    },
-                    {
-                        "id": 3,
-                        "title": "Buy groceries",
-                        "done": true
-                    }
-                    ]
-                }
-                }
-            }
-            }
-        }
-        },
     "/stats": {
         "get": {
             "summary": "Gets task statistics.",

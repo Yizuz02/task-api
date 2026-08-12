@@ -27,6 +27,17 @@ In this updated version, storage was migrated from in-memory (RAM) to a **SQLite
 * Swagger UI Express
 * OpenAPI 3.0
 
+## Layered Architecture
+
+The application is organized into three layers — **route → service → repository** — to separate HTTP handling, business logic, and data access:
+
+| Layer | File | Responsibility |
+| --- | --- | --- |
+| Route | `routes/taskRoutes.js` | Defines the Express routes and handles HTTP requests/responses (parsing input and setting status codes). |
+| Service | `services/taskService.js` | Contains validation and business logic, and calls the repository layer. |
+| Repository | `repositories/taskRepository.js` | Contains all SQL queries and database access. |
+| Database | `db.js` | Opens the SQLite connection, creates the table, and seeds the initial data. |
+
 ## Getting Started
 
 ### Prerequisites
@@ -121,7 +132,6 @@ Content-Type: application/json; charset=utf-8
 | PUT | `/tasks/{id}` | Update an existing task's title and/or completion status. |
 | DELETE | `/tasks/{id}` | Delete a task by ID. |
 | GET | `/stats` | Get calculated statistics about tasks. |
-| POST | `/reset` | Restore the task list to the initial example data. |
 
 
 ## Database Direct Inspection
@@ -200,6 +210,8 @@ Provide the command to start the application.
 
 Swagger documentation must be available at /docs and the API must run on port 3000.
 ```
+
+> **Note:** The `/reset` endpoint was later removed from the API. It only appears here as part of the original prompt and comparison.
 
 ### Running the AI Version
 
