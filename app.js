@@ -16,7 +16,9 @@ db.exec(`
     CREATE TABLE IF NOT EXISTS tasks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
-        done INT NOT NULL DEFAULT 0
+        done INT NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
 `);
 
@@ -41,25 +43,10 @@ if (numRows === 0){
   ]);
 }
 
-
-
-const originalTasks = [
-  {id: 1, title: "Study JavaScript", done: false},
-  {id: 2, title: "Develop To-Do list API for Intership", done: false},
-  {id: 3, title: "Buy groceries", done: true}
-]
-
-var tasks = originalTasks.map(task => ({
-    id: task.id,
-    title: task.title,
-    done: task.done
-  }));
-
-
 app.get("/", (req, res) => {
   res.send({
     "name": "Task API",
-    "version": "1.0",
+    "version": "1.5",
     "endpoints": ["/tasks"]
   });
 });
@@ -71,11 +58,10 @@ app.get("/health", (req, res) => {
 });
 
 app.get("/stats", (req, res) => {
-  const total = tasks.length;
-  const done = tasks.filter(task => task.done === true); 
-  const doneTotal = done.length;
-  const open = total - doneTotal;
-  res.send({ "total": total, "done": doneTotal, "open": open });
+  const total = db.prepare("SELECT COUNT(*) as count FROM tasks;").get().count;
+  const done = db.prepare("SELECT COUNT(*) as count FROM tasks WHERE done = 1;").get().count;; 
+  const open = total - done;
+  res.send({ "total": total, "done": done, "open": open });
 });
 
 app.post("/reset", (req, res) => {
@@ -99,6 +85,9 @@ app.get("/tasks", (req, res) => {
   if (query.done){
     queryTasks += " AND done = @done";
     params.done = query.done === "true" ? 1 : 0;
+  }
+  if (query.sort === "title"){
+    queryTasks += " ORDER BY title";
   }
   res.send(db.prepare(queryTasks).all(params));
 });
@@ -138,7 +127,7 @@ app.put("/tasks/:id", (req, res) => {
   
   const { id } = req.params;
 
-  let updateQuery = "UPDATE tasks";
+  let updateQuery = "UPDATE tasks SET ";
   let params = {}
 
   params.id = id
@@ -147,12 +136,8 @@ app.put("/tasks/:id", (req, res) => {
     if (typeof body.title !== "string" || body.title.trim() === ""){
       return res.status(400).send({ "error": "Invalid title" });
     }
-    updateQuery += " SET title = @title";
+    updateQuery += "title = @title, ";
     params.title = body.title;
-
-    if ("done" in body){
-      updateQuery += ",";
-    }
   }
 
 
@@ -160,11 +145,11 @@ app.put("/tasks/:id", (req, res) => {
     if (typeof body.done !== "boolean"){
       return res.status(400).send({ "error": "Invalid done status" });
     }
-    updateQuery += " SET done = @done";
-    params.done = body.done === "true" ? 1 : 0;
+    updateQuery += "done = @done, ";
+    params.done = body.done === true ? 1 : 0;
   }
 
-  updateQuery += " WHERE id = @id"
+  updateQuery += "updated_at = CURRENT_TIMESTAMP WHERE id = @id"
 
   const updateTask = db.prepare(updateQuery);
 
@@ -188,10 +173,10 @@ app.delete("/tasks/:id", (req, res) => {
   if (result.changes === 0){
     return res.status(404).send({ "error": `Task ${id} not found` });
   }
-  
+
   res.status(204).send();
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`To-do API listening on port ${port}`);
 });
