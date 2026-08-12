@@ -123,9 +123,9 @@ app.post('/tasks', (req, res) => {
     return res.status(400).send({ "error": "Invalid title" });
   }
 
-  const newId = Math.max(...tasks.map(task => task.id)) + 1;
-  const newTask = {id: newId, title: task.title, done: false};
-  tasks.push(newTask);
+  const newTask = {title: task.title, done: 0};
+  insertTask.run(newTask)
+
   res.status(201).send(newTask);
 });
 
