@@ -1,4 +1,4 @@
-const { db, insertTask } = require("../db");
+const { pool, insertTask } = require("../db");
 
 const findAll = (filters) => {
   let queryTasks = "SELECT * FROM tasks WHERE 1=1";
@@ -61,3 +61,4 @@ const countDone = () => {
 };
 
 module.exports = { findAll, findById, create, update, remove, countAll, countDone };
+
