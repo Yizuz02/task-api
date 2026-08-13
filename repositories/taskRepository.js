@@ -80,12 +80,20 @@ const remove = async (id) => {
   return result.rowCount
 };
 
-const countAll = () => {
-  return db.prepare("SELECT COUNT(*) as count FROM tasks;").get().count;
+const countAll = async () => {
+  const result = await pool.query(
+    "SELECT COUNT(*) AS count FROM tasks"
+  )
+
+  return Number(result.rows[0].count)
 };
 
-const countDone = () => {
-  return db.prepare("SELECT COUNT(*) as count FROM tasks WHERE done = 1;").get().count;
+const countDone = async () => {
+  const result = await pool.query(
+    "SELECT COUNT(*) AS count FROM tasks WHERE done = TRUE"
+  )
+
+  return Number(result.rows[0].count)
 };
 
 module.exports = { findAll, findById, create, update, remove, countAll, countDone };

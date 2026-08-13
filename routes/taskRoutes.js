@@ -16,8 +16,9 @@ router.get("/health", (req, res) => {
   });
 });
 
-router.get("/stats", (req, res) => {
-  res.send(taskService.getStats());
+router.get("/stats", async (req, res) => {
+  const stats = await taskService.getStats();
+  res.send(stats);
 });
 
 router.get("/tasks", async (req, res) => {

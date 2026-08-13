@@ -66,9 +66,9 @@ const deleteTask = async (id) => {
   }
 };
 
-const getStats = () => {
-  const total = taskRepository.countAll();
-  const done = taskRepository.countDone();
+const getStats = async () => {
+  const total = await taskRepository.countAll();
+  const done = await taskRepository.countDone();
   const open = total - done;
   return { "total": total, "done": done, "open": open };
 };
