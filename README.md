@@ -1,31 +1,17 @@
 # Task API
 
-A simple REST API for a To-Do List with full CRUD functionality and persistent SQLite storage.
+A simple REST API for a To-Do List with full CRUD functionality, containerized with Docker and backed by a persistent PostgreSQL database.
 
-The project is built with **JavaScript** and **Express.js**, uses **better-sqlite3** for database management, and includes **Swagger UI** for interactive API documentation.
-
-## Why SQLite?
-
-In this updated version, storage was migrated from in-memory (RAM) to a **SQLite** database. SQLite was chosen because:
-
-* **Single File:** The entire database resides in a single, local file (`tasks.db`).
-
-
-* **Zero Setup:** Requires no external database server installation or configuration.
-
-
-* **Data Persistence:** Data survives server restarts and crashes, providing reliable persistence.
-
-
+The project is built with **JavaScript** and **Express.js**, uses **node-postgres (`pg`)** for database management, and includes **Swagger UI** for interactive API documentation.
 
 ## Tech Stack
 
-* JavaScript
-* Node.js
-* Express.js
-* SQLite (`better-sqlite3`)
-* Swagger UI Express
-* OpenAPI 3.0
+- JavaScript (Node.js v24)
+- Express.js
+- PostgreSQL (v17)
+- Docker & Docker Compose
+- Swagger UI Express
+- OpenAPI 3.0
 
 ## Layered Architecture
 
@@ -42,51 +28,62 @@ The application is organized into three layers — **route → service → repos
 
 ### Prerequisites
 
-* Node.js (recommended version 18 or newer)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Docker Engine installed
+- `git`
 
+### Installation & Running
 
-* npm
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/Yizuz02/task-api](https://github.com/Yizuz02/task-api)
+   cd task-api
+   ```
+2. **Environment Configuration:**
+Copy the example environment file to create your local .env:
 
-### Installation
+    ```bash
+    cp .env.example .env
+    ```
+3. **Start the Stack:**
+Run the entire multi-container stack with a single command:
+    ```bash
+    docker compose up --build
+    ```
+  Automatic Database Setup & Persistence:
 
-Clone the repository:
+  - Docker Compose starts both the Express API and the PostgreSQL database container.
 
-```bash
-git clone https://github.com/Yizuz02/task-api
-cd task-api
+  - The API service waits for the PostgreSQL database health check (service_healthy) before initializing.
 
-```
+  - On startup, the application connects using DATABASE_URL, automatically creates the tasks table if missing, and seeds three default example tasks if the database is empty.
 
-
-### Run the server
-
-Start the project with a single command:
-
-
-
-> **Database Setup & Automatic Initialization:**
-> The database file `tasks.db` lives in the project root directory. It is ignored by Git (`.gitignore`) so that every clone starts fresh.
-> 
-> 
-> When you run `node app.js`, the application automatically:
-> 1. Creates `tasks.db` if it does not exist.
-> 
-> 
-> 2. Creates the `tasks` table with columns `id`, `title`, and `done`.
-> 
-> 
-> 3. Seeds the three default example tasks if the database is empty.
-> 
-> 
-> 
-> 
+  - Data is persisted across container restarts using a named Docker volume (taskdata).
 
 The server runs by default on:
 
 ```
 http://localhost:3000
-
 ```
+---
+
+### Environment Variables
+
+
+The application relies on environment variables for database connections. Local secrets are stored in `.env` (which is git-ignored).
+
+A template file `.env.example` is provided in the repository:
+
+```env
+# Database Connection String
+DATABASE_URL=postgres://postgres:dev@localhost:5432/tasks
+```
+
+When running with Docker Compose, the connection string is injected using the service name (db) as host:
+
+```bash
+DATABASE_URL=postgres://postgres:dev@db:5432/tasks
+```
+
 
 ## Example Request
 
@@ -94,7 +91,6 @@ The API supports case-insensitive search using the `search` query parameter eval
 
 ```bash
 curl -i "http://localhost:3000/tasks?search=JAVASCRIPT"
-
 ```
 
 Output:
@@ -107,10 +103,9 @@ Content-Type: application/json; charset=utf-8
   {
     "id": 1,
     "title": "Study JavaScript",
-    "done": 0
+    "done": false
   }
 ]
-
 ```
 
 ## API Endpoints
@@ -125,26 +120,18 @@ Content-Type: application/json; charset=utf-8
 | GET | `/stats` | Get calculated statistics about tasks. |
 
 
+---
+
 ## Database Direct Inspection
 
-The database structure and contents can be directly viewed and edited using **DB Browser for SQLite**.
+The containerized PostgreSQL database is mapped and accessible on your host machine at port `5432`. You can connect to it using any visual database administration tool. 
 
-**DB Browser Preview**
+In this project, **DBeaver** is used to connect to the database, inspect the schema, and view the persisted tasks directly.
 
-![Local Screenshot](dbbrowser.png)
+**DBeaver Preview**
 
-
-### Executed SQL Query Example
-
-The following query was run directly on the database to delete all completed tasks:
-
-```sql
-DELETE FROM tasks WHERE done = 1;
-
-```
-
-**Result:** The query executed successfully without errors and removed 1 completed task from the `tasks` table, which was immediately reflected across API requests.
-
+![DBeaver Database Inspection](dbeaver.png)
+ 
 ## Swagger Documentation
 
 Interactive API documentation is available at:
@@ -165,7 +152,7 @@ This project was developed as part of the **FlyRank AI Internship**.
 
 ## Extras
 
-### Schema Changes & Timestamps
+### Schema Changes & Timestamps (Old)
 
 Adding created_at and updated_at columns required dropping the existing tasks.db table so SQLite could recreate the schema with the new columns. Updating the table structure manually felt slightly brittle and disruptive to existing data, which highlighted why dedicated database migration tools are essential for handling schema changes cleanly in production.
 
