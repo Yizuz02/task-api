@@ -6,12 +6,12 @@ const httpError = (message, status) => {
   return error;
 };
 
-const getAllTasks = (filters) => {
-  return taskRepository.findAll(filters);
+const getAllTasks = async (filters) => {
+  return await taskRepository.findAll(filters);
 };
 
-const getTaskById = (id) => {
-  const task = taskRepository.findById(id);
+const getTaskById = async (id) => {
+  const task = await taskRepository.findById(id);
   if (!task){
     throw httpError(`Task ${id} not found`, 404);
   }

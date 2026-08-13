@@ -20,14 +20,17 @@ router.get("/stats", (req, res) => {
   res.send(taskService.getStats());
 });
 
-router.get("/tasks", (req, res) => {
-  res.send(taskService.getAllTasks(req.query));
+router.get("/tasks", async (req, res) => {
+  const tasks = await taskService.getAllTasks(req.query);
+
+  res.send(tasks);
 });
 
-router.get("/tasks/:id", (req, res) => {
+router.get("/tasks/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    res.send(taskService.getTaskById(id));
+    const task = await taskService.getTaskById(id);
+    res.send(task);
   } catch (error) {
     res.status(error.status).send({ "error": error.message });
   }
