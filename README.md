@@ -57,21 +57,12 @@ cd task-api
 
 ```
 
-Install the dependencies:
-
-```bash
-npm install
-
-```
 
 ### Run the server
 
 Start the project with a single command:
 
-```bash
-node app.js
 
-```
 
 > **Database Setup & Automatic Initialization:**
 > The database file `tasks.db` lives in the project root directory. It is ignored by Git (`.gitignore`) so that every clone starts fresh.
