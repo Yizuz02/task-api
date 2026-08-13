@@ -36,27 +36,32 @@ router.get("/tasks/:id", async (req, res) => {
   }
 });
 
-router.post("/tasks", (req, res) => {
+router.post("/tasks", async (req, res) => {
+  const title = req.body.title
   try {
-    res.status(201).send(taskService.createTask(req.body));
+    const task = await taskService.createTask(title);
+    res.status(201).send(task);
   } catch (error) {
     res.status(error.status).send({ "error": error.message });
   }
 });
 
-router.put("/tasks/:id", (req, res) => {
+router.put("/tasks/:id", async (req, res) => {
   const { id } = req.params;
+  const title = req.body.title
+  const done = req.body.done
   try {
-    res.send(taskService.updateTask(id, req.body));
+    const task = await taskService.updateTask(id, title, done)
+    res.send(task);
   } catch (error) {
     res.status(error.status).send({ "error": error.message });
   }
 });
 
-router.delete("/tasks/:id", (req, res) => {
+router.delete("/tasks/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    taskService.deleteTask(id);
+    await taskService.deleteTask(id);
     res.status(204).send();
   } catch (error) {
     res.status(error.status).send({ "error": error.message });

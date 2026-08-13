@@ -3,13 +3,16 @@ const { pool, insertTask } = require("../db");
 const findAll = async (filters) => {
   let queryTasks = "SELECT * FROM tasks WHERE 1=1";
   const params = [];
+
   if (filters.search){
-    queryTasks += " AND lower(title) LIKE lower($1)";
     params.push(`%${filters.search}%`);
+    queryTasks += ` AND lower(title) LIKE lower($${params.length})`;
   }
+
   if (filters.done){
-    queryTasks += " AND done = $2";
-    params.push(filters.done === "true" ? 1 : 0);
+    params.push(filters.done);
+    queryTasks += ` AND done = $${params.length}`;
+   
   }
   if (filters.sort === "title"){
     queryTasks += " ORDER BY title";
@@ -19,7 +22,6 @@ const findAll = async (filters) => {
     queryTasks,
     params
   );
-  console.log(result);
 
   return result.rows;
 };
@@ -33,35 +35,49 @@ const findById = async (id) => {
   return result.rows[0];
 };
 
-const create = (task) => {
-  insertTask.run(task);
+const create = async (title) => {
+  const result = await pool.query(
+    "INSERT INTO tasks (title, done) VALUES ($1, $2) RETURNING *",
+    [title, 0]
+  );
+
+  return result.rows[0];
 };
 
-const update = (id, data) => {
+const update = async (id, title, done) => {
   let updateQuery = "UPDATE tasks SET ";
-  let params = {};
+  
 
-  params.id = id;
+  const params = [];
 
-  if ("title" in data){
-    updateQuery += "title = @title, ";
-    params.title = data.title;
+  if (title){
+    params.push(title)
+    updateQuery += `title = $${params.length}, `;
   }
 
-  if ("done" in data){
-    updateQuery += "done = @done, ";
-    params.done = data.done === true ? 1 : 0;
+  if (done){
+    params.push(done)
+    updateQuery += `done = $${params.length}, `;
   }
 
-  updateQuery += "updated_at = CURRENT_TIMESTAMP WHERE id = @id";
+  params.push(id)
+  updateQuery += `updated_at = CURRENT_TIMESTAMP WHERE id = $${params.length} RETURNING *`;
 
-  db.prepare(updateQuery).run(params);
+  const result = await pool.query(
+    updateQuery,
+    params
+  );
 
-  return db.prepare("SELECT * FROM tasks WHERE id = ?").get(id);
+  return result.rows[0];
 };
 
-const remove = (id) => {
-  return db.prepare("DELETE FROM tasks WHERE id = @id").run({ id: id });
+const remove = async (id) => {
+  const result = await pool.query(
+    'DELETE FROM tasks WHERE id = $1',
+    [id]
+  )
+
+  return result.rowCount
 };
 
 const countAll = () => {

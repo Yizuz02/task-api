@@ -18,42 +18,38 @@ const getTaskById = async (id) => {
   return task;
 };
 
-const createTask = (body) => {
-  if (!body.title){
+const createTask = async (title) => {
+  if (!title){
     throw httpError("Title is required", 400);
   }
-  if (typeof body.title !== "string" || body.title.trim() === ""){
+  if (typeof title !== "string" || title.trim() === ""){
     throw httpError("Invalid title", 400);
   }
 
-  const newTask = {title: body.title, done: 0};
-  taskRepository.create(newTask);
+  const task = await taskRepository.create(title);
 
-  return newTask;
+  return task;
 };
 
-const updateTask = (id, body) => {
-  if (!("title" in body) && !("done" in body)){
+const updateTask = async (id, title, done) => {
+  if (!title && !done){
     throw httpError("Title or done status is required", 400);
   }
 
-  const data = {};
 
-  if ("title" in body){
-    if (typeof body.title !== "string" || body.title.trim() === ""){
+  if (title){
+    if (typeof title !== "string" || title.trim() === ""){
       throw httpError("Invalid title", 400);
     }
-    data.title = body.title;
   }
 
-  if ("done" in body){
-    if (typeof body.done !== "boolean"){
+  if (done){
+    if (typeof done !== "boolean"){
       throw httpError("Invalid done status", 400);
     }
-    data.done = body.done;
   }
 
-  const task = taskRepository.update(id, data);
+  const task = await taskRepository.update(id, title, done);
 
   if (!task){
     throw httpError(`Task ${id} not found`, 404);
@@ -62,10 +58,10 @@ const updateTask = (id, body) => {
   return task;
 };
 
-const deleteTask = (id) => {
-  const result = taskRepository.remove(id);
+const deleteTask = async (id) => {
+  const result = await taskRepository.remove(id);
 
-  if (result.changes === 0){
+  if (result === 0){
     throw httpError(`Task ${id} not found`, 404);
   }
 };
